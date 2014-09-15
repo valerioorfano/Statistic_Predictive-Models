@@ -1,0 +1,25 @@
+## Script 
+
+#### download data from UCI website: http://archive.ics.uci.edu/ml/
+
+
+
+#### exploratory data analysis
+
+
+#### looking at data, we notice columns have different ranges. To avoid that different unit of measurement could affect wrongy the data during Knn euclidean distance algorithm, we prefer to standardize the data.
+
+
+#### We define 80% of data belonging to Train and 20% of the remaining data to Test.
+
+
+#### K-Nearest Neighbour is called on Training and Test Data using Training Labels to predict Test classification. Accuracy, Sensitivity, Specificity are indexes used to evaluate the algorithm performance.
+
+
+#### AUC or Area Under the Curve is used to evaluate algorithm performance. 
+
+
+#### Accuracy=95%, AUC=99%.
+#### Plot of ROC curve
+
+

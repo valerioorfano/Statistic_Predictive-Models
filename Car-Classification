@@ -17,20 +17,33 @@ colnames(data)<-c("buying","maintenance","doors","persons","lug_boot","safety","
 sum(as.vector(apply(apply(data,2,function(x) {ifelse(is.na(x),1,0)}),2,sum)))
 #### Very good the dataframe doesn't contain NA values. rpart doesnt require any preprocessing like standardization.
 
-
-#### looking at data, we notice columns have different ranges. To avoid that different unit of measurement could affect wrongy the data during Knn euclidean distance algorithm, we prefer to standardize the data.
-
-
 #### We define 80% of data belonging to Train and 20% of the remaining data to Test.
+rgroup<-runif(dim(data)[[1]])
+Train<-data[rgroup>0.2,]
+Test<-data[rgroup<=0.2,]
+TrainLabels<-data[rgroup>0.2,"class"]
+TestLabels<-data[rgroup<=0.2,"class"]
 
+#### rpart is called on Training and Test Data using Training Labels to predict Test classification. Accuracy, Sensitivity, Specificity are indexes used to evaluate the algorithm performance.
+install.packages("CART")
+library(rpart)
+model<-rpart(Train$class~.,data=Train)
+library(rpart.plot)
+rpart.plot(model,fallen.leaves = TRUE)
+pred<-predict(model,Test)
+pred<-predict(model,Test,type = "class")
+table(pred,Test$class)
+confusionMatrix(pred,Test$class)
 
-#### K-Nearest Neighbour is called on Training and Test Data using Training Labels to predict Test classification. Accuracy, Sensitivity, Specificity are indexes used to evaluate the algorithm performance.
+#### Accuracy = 95%, very good value,  Kappa : 0.88
+table<-table(pred,Test$class)
+sum<-0
+tot<-0
+for (i in 1:4){sum<-sum+table[i,i]}
+for (i in 1:4){ for (j in 1:4) {tot<-tot+table[i,j]}}
+resubError<-1-sum/tot
+#### resubError = 0.05 very low.
 
-
-#### AUC or Area Under the Curve is used to evaluate algorithm performance. 
-
-
-#### Accuracy=95%, AUC=99%.
-#### Plot of ROC curve
+#### Search for improvement
 
 

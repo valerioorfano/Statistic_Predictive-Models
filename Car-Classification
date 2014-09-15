@@ -45,5 +45,10 @@ resubError<-1-sum/tot
 #### resubError = 0.05 very low.
 
 #### Search for improvement
+install.packages("party")
+library(party)
+Modelctree = ctree(Train$class ~.,data=Train)
+pred<-predict(Modelctree,Test)
+#### resubError = 0.06 very low. We dont get any improvements.
 
 

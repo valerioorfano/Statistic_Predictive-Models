@@ -1,10 +1,21 @@
-## Script 
+## Classification to predict the value of class of the vehicle.
+
 
 #### download data from UCI website: http://archive.ics.uci.edu/ml/
 
+download.file(url="http://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data", destfile="car.data")
+data <- read.table('car.data',header=T,sep=',',na.strings=c('NA',''))
 
 
-#### exploratory data analysis
+#### Exploratory data analysis
+summary(data)
+plot(data$unacc)
+
+#### We change the column names based with the real names. Let's  check how many NA values are contained in the dataframe.
+
+colnames(data)<-c("buying","maintenance","doors","persons","lug_boot","safety","class")
+sum(as.vector(apply(apply(data,2,function(x) {ifelse(is.na(x),1,0)}),2,sum)))
+#### Very good the dataframe doesn't contain NA values. rpart doesnt require any preprocessing like standardization.
 
 
 #### looking at data, we notice columns have different ranges. To avoid that different unit of measurement could affect wrongy the data during Knn euclidean distance algorithm, we prefer to standardize the data.

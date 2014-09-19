@@ -1,6 +1,9 @@
+## Classification to predict the usage of contraceptive in Indonesia in 1987.
+#### download data from UCI website: http://archive.ics.uci.edu/ml/
 download.file(url="http://archive.ics.uci.edu/ml/machine-learning-databases/cmc/cmc.data", destfile="cmc.data")
 seed(1234)
 data <- read.table('cmc.data',header=T,sep=',',na.strings=c('NA',''))
+#### Exploratory data analysis
 colnames(data)<-c("Wife_age", "Wife_edu", "Husband_edu", "Num_child", "Wife_relig", "Wife_unemp", "Husband_job", "Stand_liv_index", "Media_expos", "Contraceptive_methd")
 data$Husband_edu<-factor(data$Husband_edu,labels=c("low","med","int","high"))
 data$Wife_edu<-factor(data$Wife_edu,labels=c("low","med","int","high"))
@@ -11,9 +14,11 @@ data$Stand_liv_index<-factor(data$Stand_liv_index,labels=c("low","med","int","hi
 data$Media_expos<-factor(data$Media_expos,labels=c("good","not_good"))
 data$Contraceptive_methd<-ifelse(data$Contraceptive_methd==1,0,1)
 data$Contraceptive_methd<-factor(data$Contraceptive_methd,levels=c(0,1))
+#### We define 80% of data belonging to Train and 20% of the remaining data to Test.
 rgroup<-runif(dim(data)[[1]])
 train<-data[rgroup>=0.2,]
 test<-data[rgroup<0.2,]
+#### Manual predictors backward model selection using p-values
 formula<-paste("Contraceptive_methd",paste(setdiff(colnames(data),c("Contraceptive_methd")),collapse="+"),sep=" ~")
 model<-glm(formula,data=train,family=binomial(link="logit"))
 summary(model)
@@ -36,6 +41,7 @@ summary(model)
 No more value can be removed by the model as all of them have signifance value, therefore are significant for the model.
 We can notice how the usage of the contraceptive depends exclusively on the wife's age, religion, number of child, Media exposition, and standard of live.
 confint(model)
+#### plot of the Area under the Curve as index to check the goodness of the model
 test$prob<-predict(model,newdata=test,type="response")
 library(pROC)
 g <- roc(Contraceptive_methd ~ prob, data = test)

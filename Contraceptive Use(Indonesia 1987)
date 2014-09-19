@@ -41,7 +41,7 @@ summary(model)
 No more value can be removed by the model as all of them have signifance value, therefore are significant for the model.
 We can notice how the usage of the contraceptive depends exclusively on the wife's age, religion, number of child, Media exposition, and standard of live.
 confint(model)
-#### plot of the Area under the Curve as index to check the goodness of the model
+#### plot of the Area under the Curve as index to check the goodness of the model. AUC=0.7288
 test$prob<-predict(model,newdata=test,type="response")
 library(pROC)
 g <- roc(Contraceptive_methd ~ prob, data = test)
@@ -56,20 +56,19 @@ perfsens<-performance(pred.obj,"sens")
 plot(perfspec)
 par(new=TRUE)
 plot(perfsens)
-the threshold to have unbiased estimation is p=0.6
+Calculation of the threshold to have unbiased estimation is p=0.6
 library(caret)  
 confusionMatrix(ifelse(test$prob>0.6,1,0),test$Contraceptive_methd)
-RANKING PREDICTORS
+RANKING PREDICTORS using stepwise selection with AIC index.
 Considering the full model, the number of child is the most significant predictor. And this is somehow expected.
-So we consider the number of child as the first predictor.
+So we consider the number of child as the base model.
 model_first<-glm(Contraceptive_methd ~.,data=train,family=binomial(link="logit"))
 summary(model_best)
 Full Model
 model_upper<-glm(Contraceptive_methd ~.,data=train,family=binomial(link="logit"))
 step(model_first, scope = list( upper=model_upper, lower=~1 ), direction = "both", trace=FALSE)
-Our best model results to be: formula = Contraceptive_methd ~ Wife_age + Wife_edu + Num_child + Wife_relig + Stand_liv_index + Media_expos
+Our best model result is: formula = Contraceptive_methd ~ Wife_age + Wife_edu + Num_child + Wife_relig + Stand_liv_index + Media_expos
 formula_step<-"Contraceptive_methd ~ Wife_age + Wife_edu + Num_child + Wife_relig + Stand_liv_index + Media_expos"
-It is the same model we get using a manual backward selection.
 model_step<-glm(formula_step,data=train, family=binomial(link="logit"))
 test$prob_step<-predict(model_step,newdata=test,type="response")
 g_step <- roc(Contraceptive_methd ~ prob_step, data = test)

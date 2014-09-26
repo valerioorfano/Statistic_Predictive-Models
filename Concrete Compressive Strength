@@ -1,3 +1,5 @@
+##  Multivariate regression model to determine car values based on a variety of characteristics
+#### Data are extracted from the Cars93 df in the MASS library
 library(MASS)
 data(Cars93)
 summary(Cars93)

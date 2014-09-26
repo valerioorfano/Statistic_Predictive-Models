@@ -1,1 +1,157 @@
-Concrete Compressive Strength
+library(MASS)
+data(Cars93)
+summary(Cars93)
+// Exploratory data analysis. since we have only 93 observation we consider the whole data set as training dataset. Test data set is a subset of the training dataset.
+cor(Cars93$Min.Price,Cars93$Price)
+cor(Cars93$Max.Price,Cars93$Price)
+//We remove Max.Price and Min.Price column from the datamodel
+Cars93<-Cars93[,setdiff(colnames(Cars93),c("Min.Price","Max.Price"))]
+NAs<-sum(as.vector(apply(apply(Cars93,2,function(x) {ifelse(is.na(x),1,0)}),2,sum)))
+NAs/dim(Cars93)[[1]]
+// About 13% of data contains NA. Not too much.
+Let's check which column contains NA, in case they are included into the final model.
+data.frame(lapply(lapply(Cars93,function(x) {ifelse(is.na(x),1,0)}),sum))
+We notice that column Luggage.room contains 11 NA; column Rear.seat.room contains 2 NA.
+Model selection
+pairs(~.,data=Cars93,panel = panel.smooth)
+There is  strong linear relationship between Price and Horsepower.
+cor(Cars93$Price,Cars93$Horsepower) 
+gives 0.7882176 as result.
+Forward selection using F-test
+Remove model form model selection as it can be considered a sort of ID. 
+length(Cars93$Model)
+[1] 93
+> length(unique(Cars93$Model))
+[1] 93
+We remove Make as it is a subset of Manufacturer.
+Cars93<-Cars93[,-which(colnames(Cars93) %in% c("Make","Model"))]
+base_model<-lm(Price~1,data=Cars93)
+formula<-as.formula(paste("~",paste(colnames(Cars93[,-which(colnames(Cars93)%in% c("Price"))]),collapse="+")))
+add1(base_model,scope=formula,test="F")
+
+1	HorsePower and weight have the smallest p-value. We choose Horsepower, because of the strong linear relationship between Price and HorsePower.
+update the new_model
+new_model<-update(base_model, .~.+Horsepower)
+add1(new_model,scope=formula,test="F")
+Manufacturer has the smallest p-value
+new_model<-update(new_model, .~.+Manufacturer)
+summary(new_model)
+add1(new_model,scope=formula,test="F")
+Type has the smallest p-value
+new_model<-update(new_model, .~.+Type)
+summary(new_model)
+we still have significant predictor in new_model
+add1(new_model,scope=formula,test="F")
+new_model formula contains the following variables:
+lm(formula = Price ~ Horsepower + Manufacturer + Type, data = Cars93)
+model_F1<-new_model
+
+2	Let's use weight as first predictor and see how the model changes. 
+new_model<-update(base_model, .~.+Weight)
+summary(new_model)
+add1(new_model,scope=formula,test="F")
+Manufacturer has the smallest p-value
+new_model<-update(new_model, .~.+Manufacturer)
+summary(new_model)
+add1(new_model,scope=formula,test="F")
+Type has the smallest p-value
+new_model<-update(new_model, .~.+Type)
+summary(new_model)
+add1(new_model,scope=formula,test="F")
+Horsepower has the smallest p-value
+new_model<-update(new_model, .~.+Horsepower)
+summary(new_model)
+Weight is not longer significant, so we remove weight from the model.
+new_model<-update(new_model, .~.-Weight)
+add1(new_model,scope=formula,test="F")
+No more significant variables can be added.
+new_model formula contains the following variables:
+lm(formula = Price ~ Manufacturer + Type + Horsepower, data = Cars93)
+model_F2<-new_model
+3	Let us use a different approach, using AIC index.
+Let us do forward/backward stepwise regression, using the AICp criterion at each step instead of F-test.
+formula_full<-as.formula(paste("Price~",paste(colnames(Cars93[,-which(colnames(Cars93)%in% c("Price","Make","Model"))]),collapse="+")))
+Base <- lm( Price ~ Horsepower, data=Cars93 )
+Full<-lm(formula_full,data=Cars93)
+Step<-step(Base, scope = list( upper=Full, lower=~1 ), direction = "both", trace=FALSE)
+model_step<-lm(formula = Price ~ Horsepower + Manufacturer + Type + Width + Fuel.tank.capacity + AirBags + Cylinders, data = Cars93)
+4	Last approach we use Mallow index. It can be used only with numerical column. Does not work out with categorical column.
+install.packages("leaps")
+library(leaps)
+class<-sapply(Cars93,class)
+numeric<-ifelse(class %in% c("numeric","integer"),names(class),NA)
+numeric<-numeric[!is.na(numeric)]
+model_Cp<-leaps(y=Cars93[,"Price"],x=Cars93[,numeric[!numeric=="Price"]])
+It gives an error because of the presence of NA values into columns. Therefore we replace NA vaues with the column average.
+meandf<-data.frame(lapply(Cars93[,c("Luggage.room","Rear.seat.room")],function(x){ifelse(is.na(x),round(mean(x[!is.na(x)]),0),x)}))
+Cars93[,c("Luggage.room","Rear.seat.room")]<-meandf
+model_Cp<-leaps(y=Cars93[,"Price"],x=Cars93[,numeric[!numeric=="Price"]])
+Cpplot(model_Cp)
+The best model seems to be 451011. The mode uses variables
+4:Horsepower
+5:RPM
+10:Wheelbase
+11:Width
+model_Mallow<-lm(Price~Horsepower+RPM+Wheelbase+Width,data=Cars93)
+We could aslo using backward elination model, but for now we have enpugh materil we can work on :)
+Let's split the data into training and test data. 
+rgroup<-runif(dim(Cars93)[[1]])
+test<-Cars93[rgroup<0.2,]
+train<-Cars93[rgroup>=0.2,]
+model_F1, model_F2,model_step,model_Mallow
+In linear regression most of the information regarding the model are included into the residuals plot.
+Assumptions for linear regression: The error terms follow a normal probability distribution centered at zero with a fixed variance. 
+Even though the calculations of the regression model and R2 do not depend on the normality assumption, identifying patterns in residual plots can often lead to another model that better explains the response variable.
+par(mfrow=c(2, 2))
+plot(model_F1$fit,model_F1$res,xlab="Fitted F1",ylab="Residuals F1")
+plot(model_F2$fit,model_F2$res,xlab="Fitted F2",ylab="Residuals F2")
+plot(model_step$fit,model_step$res,xlab="Fitted step",ylab="Residuals step")
+plot(model_Mallow$fit,model_Mallow$res,xlab="Fitted Mallow",ylab="Residuals Mallow")
+library(car)
+par(mfrow=c(2, 2))
+qqPlot(model_F2$fit)
+qqPlot(model_F1$fit)
+qqPlot(model_step$fit)
+qqPlot(model_Mallow$fit)
+par(mfrow=c(2, 2))
+plot(model_F1$fit,model_F1$res,xlab="Fitted F1",ylab="Residuals F1")
+plot(model_F2$fit,model_F2$res,xlab="Fitted F2",ylab="Residuals F2")
+plot(model_step$fit,model_step$res,xlab="Fitted step",ylab="Residuals step")
+plot(model_Mallow$fit,model_Mallow$res,xlab="Fitted Mallow",ylab="Residuals Mallow")
+Plot of the residuals look a bit funnelled. We can correct it using log(Price) insted of Price.
+model_F1log<-lm(formula = log(Price,10) ~ Horsepower + Manufacturer + Type, data = Cars93)
+model_F2log<-lm(formula = log(Price,10) ~ Manufacturer + Type + Horsepower, data = Cars93)
+model_steplog<-lm(formula = log(Price,10) ~ Horsepower + Manufacturer + Type + Width + Fuel.tank.capacity + AirBags + Cylinders, data = Cars93)
+model_Mallowlog<-lm(formula = log(Price,10) ~ Horsepower + RPM + Wheelbase + Width, data = Cars93)
+par(mfrow=c(2, 2))
+plot(model_F1log$fit,model_F1log$res,xlab="Fitted F1",ylab="Residuals F1")
+plot(model_F2log$fit,model_F2log$res,xlab="Fitted F2",ylab="Residuals F2")
+plot(model_steplog$fit,model_steplog$res,xlab="Fitted step",ylab="Residuals step")
+plot(model_Mallowlog$fit,model_Mallowlog$res,xlab="Fitted Mallow",ylab="Residuals Mallow")
+For the Mallow3
+-----
+model_F1sqrt<-lm(formula = sqrt(Price) ~ Horsepower + Manufacturer + Type, data = Cars93)
+model_F2sqrt<-lm(formula = sqrt(Price) ~ Manufacturer + Type + Horsepower, data = Cars93)
+model_stepsqrt<-lm(formula = sqrt(Price) ~ Horsepower + Manufacturer + Type + Width + Fuel.tank.capacity + AirBags + Cylinders, data = Cars93)
+model_Mallowsqrt<-lm(formula = sqrt(Price) ~ Horsepower + RPM + Wheelbase + Width, data = Cars93)
+model_F1sqrt<-lm(formula = sqrt(Price) ~ Horsepower + RPM + Wheelbase + Width, data = Cars93)
+plot(model_F1sqrt$fit,model_F1sqrt$res,xlab="Fitted Mallow",ylab="Residuals Mallow")
+plot(density(model_F1sqrt$res))
+plot(density(model_F2sqrt$res))
+plot(density(model_stepsqrt$res))
+plot(density(model_Mallowsqrt$res))
+Looking at the plot of the residuals we prefer to use for all the models sqrt transformation of the dependent variable.
+--------------
+Outliers and Influential Observations
+cutoff <- 4/((nrow(Cars93)-length(model_F1sqrt$coefficients)-2))
+plot(model_F1sqrt, which=4, cook.levels=cutoff)
+cutoff <- 4/((nrow(Cars93)-length(model_F2sqrt$coefficients)-2))
+plot(model_F2sqrt, which=4, cook.levels=cutoff)
+cutoff <- 4/((nrow(Cars93)-length(model_stepsqrt$coefficients)-2))
+plot(model_stepsqrt, which=4, cook.levels=cutoff)
+cutoff <- 4/((nrow(Cars93)-length(model_Mallowsqrt$coefficients)-2))
+plot(model_Mallowsqrt, which=4, cook.levels=cutoff)
+cook <- cooks.distance(model_F1sqrt)
+There are not significant influential point as  the max value for cook_distance is belowe 1, and anyway we decide not 
+It is possible to generate new models subsetting the training data to those points having cook distance belowe the cutoff. Anyway we have decided to not make any change as we don’t have any information regarding those influential points(registration error etc…).
+

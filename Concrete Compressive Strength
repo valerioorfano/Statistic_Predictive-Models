@@ -49,25 +49,25 @@ add1(new_model,scope=formula,test="F")
 lm(formula = Price ~ Horsepower + Manufacturer + Type, data = Cars93)
 model_F1<-new_model
 
-2	Let's use weight as first predictor and see how the model changes. 
+#### 2	Let's use weight as first predictor and see how the model changes. 
 new_model<-update(base_model, .~.+Weight)
 summary(new_model)
 add1(new_model,scope=formula,test="F")
-Manufacturer has the smallest p-value
+#### Manufacturer has the smallest p-value associated to the extra sum of square(F)
 new_model<-update(new_model, .~.+Manufacturer)
 summary(new_model)
 add1(new_model,scope=formula,test="F")
-Type has the smallest p-value
+#### Type has the smallest p-value
 new_model<-update(new_model, .~.+Type)
 summary(new_model)
 add1(new_model,scope=formula,test="F")
-Horsepower has the smallest p-value
+#### Horsepower has the smallest p-value
 new_model<-update(new_model, .~.+Horsepower)
 summary(new_model)
-Weight is not longer significant, so we remove weight from the model.
+#### Weight is not longer significant, so we remove weight from the model.
 new_model<-update(new_model, .~.-Weight)
 add1(new_model,scope=formula,test="F")
-No more significant variables can be added.
+#### No more significant variables can be added.
 new_model formula contains the following variables:
 lm(formula = Price ~ Manufacturer + Type + Horsepower, data = Cars93)
 model_F2<-new_model

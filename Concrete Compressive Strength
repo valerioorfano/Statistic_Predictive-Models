@@ -11,41 +11,41 @@ cor(Cars93$Max.Price,Cars93$Price)
 Cars93<-Cars93[,setdiff(colnames(Cars93),c("Min.Price","Max.Price"))]
 NAs<-sum(as.vector(apply(apply(Cars93,2,function(x) {ifelse(is.na(x),1,0)}),2,sum)))
 NAs/dim(Cars93)[[1]]
-// About 13% of data contains NA. Not too much.
+#### About 13% of data contains NA. Not too much.
 Let's check which column contains NA, in case they are included into the final model.
 data.frame(lapply(lapply(Cars93,function(x) {ifelse(is.na(x),1,0)}),sum))
-We notice that column Luggage.room contains 11 NA; column Rear.seat.room contains 2 NA.
-Model selection
+#### We notice that column Luggage.room contains 11 NA; column Rear.seat.room contains 2 NA.
+#### Model selection
 pairs(~.,data=Cars93,panel = panel.smooth)
-There is  strong linear relationship between Price and Horsepower.
+#### There is  strong linear relationship between Price and Horsepower.
 cor(Cars93$Price,Cars93$Horsepower) 
-gives 0.7882176 as result.
-Forward selection using F-test
-Remove model form model selection as it can be considered a sort of ID. 
+#### It gives 0.7882176 as result.
+#### Forward selection using F-test
+#### Remove Model column form model selection as it can be considered a sort of ID having 93 different values.
 length(Cars93$Model)
-[1] 93
-> length(unique(Cars93$Model))
-[1] 93
-We remove Make as it is a subset of Manufacturer.
+#### Result= 93
+length(unique(Cars93$Model))
+#### Result 93
+#### We remove Make as it is a clone of Manufacturer.
 Cars93<-Cars93[,-which(colnames(Cars93) %in% c("Make","Model"))]
 base_model<-lm(Price~1,data=Cars93)
 formula<-as.formula(paste("~",paste(colnames(Cars93[,-which(colnames(Cars93)%in% c("Price"))]),collapse="+")))
 add1(base_model,scope=formula,test="F")
 
-1	HorsePower and weight have the smallest p-value. We choose Horsepower, because of the strong linear relationship between Price and HorsePower.
-update the new_model
+#### 1	HorsePower and weight have the smallest p-value. We choose Horsepower, because of the strong linear relationship between Price and HorsePower.
+#### Update the new_model
 new_model<-update(base_model, .~.+Horsepower)
 add1(new_model,scope=formula,test="F")
-Manufacturer has the smallest p-value
+#### Manufacturer has the smallest p-value associated to the extra sum of square(F)
 new_model<-update(new_model, .~.+Manufacturer)
 summary(new_model)
 add1(new_model,scope=formula,test="F")
-Type has the smallest p-value
+#### Type has the smallest p-value
 new_model<-update(new_model, .~.+Type)
 summary(new_model)
-we still have significant predictor in new_model
+#### we still have significant predictor in new_model
 add1(new_model,scope=formula,test="F")
-new_model formula contains the following variables:
+#### No more significant predictor. new_model formula contains the following variables:
 lm(formula = Price ~ Horsepower + Manufacturer + Type, data = Cars93)
 model_F1<-new_model
 

@@ -3,10 +3,11 @@
 library(MASS)
 data(Cars93)
 summary(Cars93)
-// Exploratory data analysis. since we have only 93 observation we consider the whole data set as training dataset. Test data set is a subset of the training dataset.
+#### Exploratory data analysis. Since we have only 93 observation we consider the whole data set as training dataset. Test data set will be a subset of the training dataset.
+#### Let's check for column correlation
 cor(Cars93$Min.Price,Cars93$Price)
 cor(Cars93$Max.Price,Cars93$Price)
-//We remove Max.Price and Min.Price column from the datamodel
+#### We remove Max.Price and Min.Price column from the datamodel because strongly related to Price column
 Cars93<-Cars93[,setdiff(colnames(Cars93),c("Min.Price","Max.Price"))]
 NAs<-sum(as.vector(apply(apply(Cars93,2,function(x) {ifelse(is.na(x),1,0)}),2,sum)))
 NAs/dim(Cars93)[[1]]

@@ -98,9 +98,9 @@ Cpplot(model_Cp)
 model_Mallow<-lm(Price~Horsepower+RPM+Wheelbase+Width,data=Cars93)
 #### We could aslo using backward elination model, but for now we have enough material to work on :)
 #### Finally we have: model_F1, model_F2,model_step,model_Mallow
-In linear regression most of the information regarding the model are included into the residuals plot.
-Assumptions for linear regression: The error terms follow a normal probability distribution centered at zero with a fixed variance. 
-Even though the calculations of the regression model and R2 do not depend on the normality assumption, identifying patterns in residual plots can often lead to another model that better explains the response variable.
+#### In linear regression most of the information regarding the model are included into the residuals plot.
+#### Assumptions for linear regression: The error terms follow a normal probability distribution centered at zero with a fixed variance σ2. 
+#### Even though the calculations of the regression model and R2 do not depend on the normality assumption, identifying patterns in residual plots can often lead to another model that better explains the response variable.
 par(mfrow=c(2, 2))
 plot(model_F1$fit,model_F1$res,xlab="Fitted F1",ylab="Residuals F1")
 plot(model_F2$fit,model_F2$res,xlab="Fitted F2",ylab="Residuals F2")
@@ -112,12 +112,7 @@ qqPlot(model_F2$fit)
 qqPlot(model_F1$fit)
 qqPlot(model_step$fit)
 qqPlot(model_Mallow$fit)
-par(mfrow=c(2, 2))
-plot(model_F1$fit,model_F1$res,xlab="Fitted F1",ylab="Residuals F1")
-plot(model_F2$fit,model_F2$res,xlab="Fitted F2",ylab="Residuals F2")
-plot(model_step$fit,model_step$res,xlab="Fitted step",ylab="Residuals step")
-plot(model_Mallow$fit,model_Mallow$res,xlab="Fitted Mallow",ylab="Residuals Mallow")
-Plot of the residuals look a bit funnelled. We can correct it using log(Price) insted of Price.
+#### Plot of the residuals look a bit funnelled. We can correct it using transformation for example log(Price) insted of Price.
 model_F1log<-lm(formula = log(Price,10) ~ Horsepower + Manufacturer + Type, data = Cars93)
 model_F2log<-lm(formula = log(Price,10) ~ Manufacturer + Type + Horsepower, data = Cars93)
 model_steplog<-lm(formula = log(Price,10) ~ Horsepower + Manufacturer + Type + Width + Fuel.tank.capacity + AirBags + Cylinders, data = Cars93)

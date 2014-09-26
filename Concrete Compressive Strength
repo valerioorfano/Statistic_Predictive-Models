@@ -71,14 +71,14 @@ add1(new_model,scope=formula,test="F")
 new_model formula contains the following variables:
 lm(formula = Price ~ Manufacturer + Type + Horsepower, data = Cars93)
 model_F2<-new_model
-3	Let us use a different approach, using AIC index.
-Let us do forward/backward stepwise regression, using the AICp criterion at each step instead of F-test.
+#### 3	Let us use a different approach, using AIC value.
+#### Let us do forward/backward stepwise regression, using the AICp criterion at each step instead of F-test.
 formula_full<-as.formula(paste("Price~",paste(colnames(Cars93[,-which(colnames(Cars93)%in% c("Price","Make","Model"))]),collapse="+")))
 Base <- lm( Price ~ Horsepower, data=Cars93 )
 Full<-lm(formula_full,data=Cars93)
 Step<-step(Base, scope = list( upper=Full, lower=~1 ), direction = "both", trace=FALSE)
 model_step<-lm(formula = Price ~ Horsepower + Manufacturer + Type + Width + Fuel.tank.capacity + AirBags + Cylinders, data = Cars93)
-4	Last approach we use Mallow index. It can be used only with numerical column. Does not work out with categorical column.
+#### 4	Last approach we use Mallow index. It can be used only with numerical column. Does not work out well with categorical value.
 install.packages("leaps")
 library(leaps)
 class<-sapply(Cars93,class)
@@ -90,11 +90,11 @@ meandf<-data.frame(lapply(Cars93[,c("Luggage.room","Rear.seat.room")],function(x
 Cars93[,c("Luggage.room","Rear.seat.room")]<-meandf
 model_Cp<-leaps(y=Cars93[,"Price"],x=Cars93[,numeric[!numeric=="Price"]])
 Cpplot(model_Cp)
-The best model seems to be 451011. The mode uses variables
-4:Horsepower
-5:RPM
-10:Wheelbase
-11:Width
+#### The best model seems to be 451011 is the model with the less number of variables and with MallowCp . The mode uses variables
+#### 4:Horsepower
+#### 5:RPM
+#### 10:Wheelbase
+#### 11:Width
 model_Mallow<-lm(Price~Horsepower+RPM+Wheelbase+Width,data=Cars93)
 We could aslo using backward elination model, but for now we have enpugh materil we can work on :)
 Let's split the data into training and test data. 

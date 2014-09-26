@@ -90,18 +90,14 @@ meandf<-data.frame(lapply(Cars93[,c("Luggage.room","Rear.seat.room")],function(x
 Cars93[,c("Luggage.room","Rear.seat.room")]<-meandf
 model_Cp<-leaps(y=Cars93[,"Price"],x=Cars93[,numeric[!numeric=="Price"]])
 Cpplot(model_Cp)
-#### The best model seems to be 451011 is the model with the less number of variables and with MallowCp . The mode uses variables
+#### The best model seems to be 451011 is the model with the less number of variables and with MallowCp~p(number of predictors of the model) . The mode uses variables
 #### 4:Horsepower
 #### 5:RPM
 #### 10:Wheelbase
 #### 11:Width
 model_Mallow<-lm(Price~Horsepower+RPM+Wheelbase+Width,data=Cars93)
-We could aslo using backward elination model, but for now we have enpugh materil we can work on :)
-Let's split the data into training and test data. 
-rgroup<-runif(dim(Cars93)[[1]])
-test<-Cars93[rgroup<0.2,]
-train<-Cars93[rgroup>=0.2,]
-model_F1, model_F2,model_step,model_Mallow
+#### We could aslo using backward elination model, but for now we have enough material to work on :)
+#### Finally we have: model_F1, model_F2,model_step,model_Mallow
 In linear regression most of the information regarding the model are included into the residuals plot.
 Assumptions for linear regression: The error terms follow a normal probability distribution centered at zero with a fixed variance. 
 Even though the calculations of the regression model and R2 do not depend on the normality assumption, identifying patterns in residual plots can often lead to another model that better explains the response variable.

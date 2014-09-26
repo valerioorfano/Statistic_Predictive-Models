@@ -135,7 +135,7 @@ plot(density(model_F2sqrt$res))
 plot(density(model_stepsqrt$res))
 plot(density(model_Mallowsqrt$res))
 #### Looking at the plot of the residuals we prefer to use for all the models sqrt transformation of the dependent variable.
-#### Outliers and Influential Observations
+#### OUTLIERS AND INFLUENTIAL OBSERVATION
 cutoff <- 4/((nrow(Cars93)-length(model_F1sqrt$coefficients)-2))
 plot(model_F1sqrt, which=4, cook.levels=cutoff)
 cutoff <- 4/((nrow(Cars93)-length(model_F2sqrt$coefficients)-2))
@@ -147,14 +147,13 @@ plot(model_Mallowsqrt, which=4, cook.levels=cutoff)
 cook <- cooks.distance(model_F1sqrt)
 #### There are not significant influential point since the max value for cook_distance is belowe 1.
 #### It is possible to generate new models subsetting the training data to those points having cook distance belowe the cutoff. Anyway we have decided to not make any change as we don’t have any information regarding those influential points(registration error etc…).
+#### MULTICOLLINEARITY
 #### Multicollinearity exists when two or more explanatory variables in a multiple regression model are highly correlated with each other.
 #### Values of VIF >5 means possible multicollinearity. Values of VIF>10 means strong multicollinearity is certainly a problem-
-
 vif(model_F1sqrt)
 vif(model_F2sqrt)
 vif(model_stepsqrt)
 vif(model_Mallowsqrt)
-
 #### Only Width in the Mallowsqrt model has VIF>5. Let's check what is the variable correlated with Width.
 sapply(Cars93[,c("Horsepower","RPM","Wheelbase")],function(x) {cor(x,Cars93$Width)})
 #### Horsepower        RPM  Wheelbase 

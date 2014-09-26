@@ -154,4 +154,54 @@ plot(model_Mallowsqrt, which=4, cook.levels=cutoff)
 cook <- cooks.distance(model_F1sqrt)
 There are not significant influential point as  the max value for cook_distance is belowe 1, and anyway we decide not 
 It is possible to generate new models subsetting the training data to those points having cook distance belowe the cutoff. Anyway we have decided to not make any change as we don’t have any information regarding those influential points(registration error etc…).
+Multicollinearity exists when two or more explanatory variables in a multiple regression model are highly correlated with each other.
+Values of VIF >5 means possible multicollinearity. Values of VIF>10 means strong multicollinearity is certainly a problem-
 
+vif(model_F1sqrt)
+vif(model_F2sqrt)
+vif(model_stepsqrt)
+vif(model_Mallowsqrt)
+
+Looking at the values only Width in the Mallowsqrt model has VIF>5. Let's check what is the variable correlated with Width.
+sapply(Cars93[,c("Horsepower","RPM","Wheelbase")],function(x) {cor(x,Cars93$Width)})
+Horsepower        RPM  Wheelbase 
+ 0.6444134 -0.5397211  0.8072134
+There is quite a stron linear relationship between Width and Wheelbase and this is quite normal since the wheelbase is the distance between its front and rear wheels. It increases with the increase of the width.
+More difficult is to evaluate the value of VIF for categorical value.
+If our goal is to create a model to describe or predict, then multicollinearity really is not a problem and we can keep both Width and Wheelbase.
+However, if our goal is to understand how a specific explanatory variable influences the response, then multicollinearity can cause coefficients (and their corresponding p-values when testing their significance) to be unreliable.
+model_Mallowsqrt=lm(formula = sqrt(Price) ~ Horsepower + RPM + Wheelbase + Width,data = Cars93)
+Let's see what happens when we remove Wheelbase from the model.
+lm(formula = sqrt(Price) ~ Horsepower + RPM + Width,data = Cars93)
+Width is no longer significant but the model was not chosen because of the significant of the predictors. Beta values almost don't change. 
+R_Squared is reduced from 0.74 to 0.66. Therefore we decide to keep the variable Wheelbase.
+GOODNESS OF FIT R2,F-statistic
+summary(model_Mallowsqrt)=Adjusted R-squared:  0.7411,Residual standard error: 0.5154,F-statistic: 22.44 on 46 and 46 DF,  p-value: < 2.2e-16
+summary(model_stepsqrt)=Adjusted R-squared:  0.9147,Residual standard error: 0.2959,F-statistic: 25.38 on 37 and 55 DF,  p-value: < 2.2e-16
+summary(model_F2sqrt)=Adjusted R-squared:  0.9075,Residual standard error: 0.3081,F-statistic: 25.38 on 37 and 55 DF,  p-value: < 2.2e-16
+summary(model_F1sqrt)=Adjusted R-squared:  0.9075,Residual standard error: 0.3081,F-statistic: 66.84 on 4 and 88 DF,  p-value: < 2.2e-16
+
+Only Mallow model has lowest R-squared and highest residua standard errors and this was expected because the Mallow model considered only numeric variable. The other 3 models have very high R-squared
+In all mmodels F-statistic for the whole model is highly significant.
+ERROR
+set.seed(12345)
+rgroup<-runif(dim(Cars93)[[1]])
+test<-Cars93[rgroup<0.2,]
+pred_Mallowsqrt<-predict(model_Mallowsqrt,newdata = test)
+pred_stepsqrt<-predict(model_stepsqrt,newdata = test)
+pred_F2sqrt<-predict(model_F2sqrt,newdata = test)
+pred_F1sqrt<-predict(model_F1sqrt,newdata = test)
+install.packages("hydroGOF")
+library(hydroGOF)
+rmse(pred_F1sqrt,sqrt(test$Price))
+rmse(pred_F2sqrt,sqrt(test$Price))
+rmse(pred_stepsqrt,sqrt(test$Price))
+rmse(pred_Mallowsqrt,sqrt(test$Price))
+
+rmse(pred_F1sqrt,sqrt(test$Price)) = 0.2649157
+rmse(pred_F2sqrt,sqrt(test$Price)) = 0.2649157
+rmse(pred_stepsqrt,sqrt(test$Price)) = 0.2407184
+rmse(pred_Mallowsqrt,sqrt(test$Price)) = 0.4445927
+
+Again in prediction definetely Mallow model perform less because we have chosen only numerical variables.
+Finally removing the collinearity from the model_Mallow removing the variable Wheelbase causes an higher error and therefore a worse performance of the model in prediction. Therefore for prediction it is better to keep the collinear variable

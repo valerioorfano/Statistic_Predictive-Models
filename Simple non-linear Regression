@@ -1,0 +1,46 @@
+##SIMPLE NONLINEAR REGRESSION
+#Data are available form the basic R package
+data(pressure)
+str(pressure)
+#plot(pressure$temperature,pressure$pressure)
+#The plot highlight a clear nonliner regression. The relationship is a curve that can be expressed by a polynomial.
+#Temperature is in celsius degree. Pression is in mercury 
+lines(lowess(pressure$temperature,pressure$pressure))
+#It is confirmed that centering of the independent variable to have zero sample mean removes nonessential ill-conditioning. If the sample values of χ are placed symmetrically about their mean, the sample correlation between χα and χβ is reduced to zero.
+pressure$temperaturecent<-scale(pressure$temperature,center=TRUE,scale=FALSE)
+pressure$pressurecent<-scale(pressure$pressure,center=TRUE,scale=FALSE)
+plot(pressure$temperaturecent,pressure$pressurecent)
+#It is not mandatory to center also the dependent variable, as the ill conditioning is related only to indipendet variables X'X matrix 
+#linear model
+pressurecent<-pressure[,c("temperaturecent","pressurecent")]
+linearModel <- lm(pressurecent ~ temperaturecent, pressurecent)
+#quadratic model
+quadraticModel <- lm(pressurecent ~ temperaturecent + I(temperaturecent^2), pressurecent)
+#cubic model
+cubicModel <- lm(pressurecent ~ temperaturecent + I(temperaturecent^2) + I(temperaturecent^3), pressurecent)
+#display summary information about the models
+summary(linearModel)
+summary(quadraticModel)
+summary(cubicModel)
+#compare the models using ANOVA
+anova(linearModel, quadraticModel, cubicModel)
+predictlinear<-predict(linearModel,data=pressure$temperaturecent)
+plot(pressure$temperaturecent,pressure$pressurecent,col=1,pch=1)
+par(new = TRUE)
+plot(pressure$temperaturecent,predictlinear,col=2,pch=2,axes=FALSE,ann=FALSE)
+par(new = TRUE)
+predictquadratic<-predict(quadraticModel,data=pressure$temperaturecent)
+plot(pressure$temperaturecent,predictquadratic,col=3,pch=3,axes=FALSE,,ann=FALSE)
+par(new = TRUE)
+predictcubic<-predict(cubicModel,data=pressure$temperaturecent)
+plot(pressure$temperaturecent,predictcubic,col=4,pch=4,axes=FALSE,ann=FALSE)
+# As you can see from the multiple plot, the one which fits better the real model is the cubicModel.
+summary(cubicModel)
+cubicModel2 <- lm(pressurecent ~  I(temperaturecent^2) + I(temperaturecent^3), pressurecent)
+predictcubic2<-predict(cubicModel2,data=pressure$temperaturecent)
+par(new = TRUE)
+plot(pressure$temperaturecent,predictcubic2,col=8,pch=8,axes=FALSE,ann=FALSE)
+The last cubicModel2 plot is definitely the better, since all the coefficients are significant with significant level alfa=5%.
+anova(cubicModel, cubicModel2)
+There is not significant different between cubicModel and cubicModel2
+

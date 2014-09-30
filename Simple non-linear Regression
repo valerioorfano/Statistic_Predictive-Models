@@ -41,4 +41,7 @@ plot(pressure$temperaturecent,predictcubic2,col=8,pch=8,axes=FALSE,ann=FALSE)
 #### The last cubicModel2 plot is definitely the better, since all the coefficients are significant with significant level alfa=5%.
 anova(cubicModel, cubicModel2)
 #### There is not significant different between cubicModel and cubicModel2
-#### Furthermore Adjusted R-squared:  0.9868 very good value.
+Furthermore Adjusted R-squared:  0.9868 very good value.
+plot(cubicModel2$res)
+#### Residuals follow a sinusoidal distribution and not a normal distribution, anyway the max(residuals)/max(predicted) value is abt 6%, so pretty small.
+#### Probably other transformations could also be applied.

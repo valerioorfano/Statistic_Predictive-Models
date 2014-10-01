@@ -3,7 +3,7 @@
 data(pressure)
 str(pressure)
 plot(pressure$temperature,pressure$pressure)
-#### The plot highlight a clear nonliner regression. The relationship is a curve that can be expressed by a polynomial.
+#### The plot highlight a clear nonliner regression. The relationship is a curve that can be expressed by a polynomial. (Final conclusion is that it is better using a Log transformation)
 #### Temperature is in celsius degree. Pression is in mercury 
 lines(lowess(pressure$temperature,pressure$pressure))
 #### It is confirmed that centering of the independent variable to have zero sample mean removes nonessential ill-conditioning. If the sample values of X are placed symmetrically about their mean, the sample correlation between Xα and Xβ is reduced to zero.
@@ -44,4 +44,4 @@ anova(cubicModel, cubicModel2)
 Furthermore Adjusted R-squared:  0.9868 very good value.
 plot(cubicModel2$res)
 #### Residuals follow a sinusoidal distribution and not a normal distribution, anyway the max(residuals)/max(predicted) value is abt 6%, so pretty small.
-#### Probably other transformations could also be applied.
+#### Probably other transformations could also be applied. Since Y has an exponential trend it is better using Log tranformation.

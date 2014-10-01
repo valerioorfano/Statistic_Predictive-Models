@@ -1,44 +1,28 @@
 ## COX-BOX
-#### Data are available form the basic R package
+#Data are available form the basic R package
 data(pressure)
 str(pressure)
 plot(pressure$temperature,pressure$pressure)
-#### The plot highlight a clear nonliner regression. The relationship is a curve that can be expressed by Log tranformation.
-#### Temperature is in celsius degree. Pression is in mercury 
+#The plot highlight a clear nonliner regression. The relationship is a curve that can be expressed by Log tranformation.
+#Temperature is in celsius degree. Pression is in mercury 
 pressure$temperature<-(pressure$temperature+273)
 linearModel <- lm(pressure ~ temperature, pressure)
 par(mfrow=c(2,2))
 plot(linearModel)
-#### Looking at the residuals plot, residuals vs y-hat does not follow a normal distribution (parabolic) and that does not satisfy one or more assumptions of ordinary least squares regression(Gauss_Maàrkov)
-#### We could use Log tranformation but for this exercise we can want to use Cox-Box that is a more generic function that could be used in multiple situation.
+#Looking at the residuals plot, residuals vs y-hat does not follow a normal distribution (parabolic) and that does not satisfy one or more assumptions of ordinary least squares regression(Gauss_Maàrkov)
+#Cox-Box that is a more generic function that could be used in multiple situation.
 library(MASS)
 boxcox(linearModel,lambda=seq(0,1,by=0.1))
 temp<-boxcox(linearModel,lambda=seq(0,1,by=0.1))
 boxcox<-data.frame(cbind(x=temp$x,y=temp$y))
-#### lambda is the value which maximezes the log-likelyhood.
+#lambda is the value which maximezes the log-likelyhood.
 lambda<-boxcox[which(max(boxcox$y)==boxcox$y),]$x
-#### Base on CoxBox assumptions, z is now the new function.
-#### Since lambda is pretty close to 0, we usethe function Log(y)
+#Base on CoxBox assumptions, z is now the new function.
+#Since lambda is pretty close to 0, we usethe function Log(y)
 par(mfrow=c(1,1))
-plot(log(pressure) ~ temperature,data= pressure)
-linearModel <- lm(log(pressure) ~ temperature, pressure)
-skewness(lm(log(pressure) ~ temperature, pressure)$residuals)
-#### skewness = 0.7 is not a very good result, but we couldn't find anything better.
-#### Other options like the ones belowe didn't provide anything better.
-plot(density(lm(log(pressure) ~ temperature, pressure)$residuals))
-#### residuals are still a little left skewed.
-#### Other options like the ones reported belowe didn't provide anything better.
-skewness(linearModelCoxBox<-lm(log(pressure) ~ I(temperature^2),data= pressure)$res)
-skewness(linearModelCoxBox<-lm(log(pressure) ~ I(1/temperature),data= pressure)$res)
-skewness(linearModelCoxBox<-lm(log(pressure) ~ sqrt(temperature),data= pressure)$res)
-skewness(linearModelCoxBox<-lm(log(pressure) ~ log(temperature),data= pressure)$res)
-#### The model the smallest skew is 
-par(mfrow=c(1,2))
-plot(density(linearModelCoxBox<-lm(log(pressure) ~ temperature,data= pressure)$res))
-plot(density(linearModelCoxBox<-lm(log(pressure) ~ log(temperature),data= pressure)$res)))
+plot(log(pressure) ~ log(temperature),data= pressure)
+plot(density(linearModelCoxBox<-lm(log(pressure) ~ log(temperature),data= pressure)$res))
 summary(lm(log(pressure) ~ log(temperature),data= pressure))
-#### Residual standard error: 0.5734 on 17 degrees of freedom
-#### Multiple R-squared:  0.9853,    Adjusted R-squared:  0.9845 
-#### F-statistic:  1143 on 1 and 17 DF,  p-value: < 2.2e-16
-
-
+#Residual standard error: 0.5734 on 17 degrees of freedom
+#Multiple R-squared:  0.9853,    Adjusted R-squared:  0.9845 
+#F-statistic:  1143 on 1 and 17 DF,  p-value: < 2.2e-16

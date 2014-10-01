@@ -10,7 +10,7 @@ linearModel <- lm(pressure ~ temperature, pressure)
 par(mfrow=c(2,2))
 plot(linearModel)
 #Looking at the residuals plot, residuals vs y-hat does not follow a normal distribution (parabolic) and that does not satisfy one or more assumptions of ordinary least squares regression(Gauss_Maàrkov)
-#Cox-Box that is a more generic function that could be used in multiple situation.
+#We could use Log tranformation but for this exercise we can want to use Cox-Box that is a more generic function that could be used in multiple situation.
 library(MASS)
 boxcox(linearModel,lambda=seq(0,1,by=0.1))
 temp<-boxcox(linearModel,lambda=seq(0,1,by=0.1))
@@ -20,7 +20,21 @@ lambda<-boxcox[which(max(boxcox$y)==boxcox$y),]$x
 #Base on CoxBox assumptions, z is now the new function.
 #Since lambda is pretty close to 0, we usethe function Log(y)
 par(mfrow=c(1,1))
-plot(log(pressure) ~ log(temperature),data= pressure)
+plot(log(pressure) ~ temperature,data= pressure)
+linearModel <- lm(log(pressure) ~ temperature, pressure)
+skewness(lm(log(pressure) ~ temperature, pressure)$residuals)
+#skewness = 0.7 is not a very good result, but we couldn't find anything better.
+#Other options like the ones belowe didn't provide anything better.
+plot(density(lm(log(pressure) ~ temperature, pressure)$residuals))
+#residuals are still a little left skewed.
+#Other options like the ones reported belowe didn't provide anything better.
+skewness(linearModelCoxBox<-lm(log(pressure) ~ I(temperature^2),data= pressure)$res)
+skewness(linearModelCoxBox<-lm(log(pressure) ~ I(1/temperature),data= pressure)$res)
+skewness(linearModelCoxBox<-lm(log(pressure) ~ sqrt(temperature),data= pressure)$res)
+skewness(linearModelCoxBox<-lm(log(pressure) ~ log(temperature),data= pressure)$res)
+#The model the smallest skew is 
+par(mfrow=c(1,2))
+plot(density(linearModelCoxBox<-lm(log(pressure) ~ temperature,data= pressure)$res))
 plot(density(linearModelCoxBox<-lm(log(pressure) ~ log(temperature),data= pressure)$res))
 summary(lm(log(pressure) ~ log(temperature),data= pressure))
 #Residual standard error: 0.5734 on 17 degrees of freedom

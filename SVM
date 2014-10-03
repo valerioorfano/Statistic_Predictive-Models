@@ -1,1 +1,38 @@
-Work in progress
+## OCR with Support Vector Machine
+install.packages("downloader")
+require(downloader)
+download(url="https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/letterdata.csv",destfile="letterdata.csv")
+letterdata<-read.table("letterdata.csv",header=T,sep=",")
+str(letterdata)
+#### SVM cannot be applied to categorical valirable, since the scope is to find the hiperplane that divides in space data into group. 
+#### Furthermore likewise for KNN, data has to be normalized to avoid some features bias the result.
+#### Anyway data are already normilzed
+#### Train = 80%, Test = 20%
+index = sample(1:nrow(letterdata), size=0.2*nrow(letterdata))
+train<-letterdata[-index,]
+test<-letterdata[index,]
+library(kernlab)
+classifier <- ksvm(letter ~ ., data = train,kernel = "vanilladot")
+predictions <- predict(classifier, test)
+library(caret)
+confusionMatrix(test$letter,predictions)
+table(predictions, test$letter)
+accuracy= table(predictions==test$letter)
+accuracy[2]/(accuracy[2]+accuracy[1])
+#### 0.85475 
+#### In general we can say that SVM works pretty well when identifying canned hand written letters.
+#### The above model used LSVM linear Support vector machine algorithm. we can try to improve the result using a different algorithm. 
+classifier_rbf <- ksvm(letter ~ ., data = train,kernel = "rbfdot")
+predictions_rbf <- predict(classifier_rbf, test)
+table(predictions_rbf, test$letter)
+accuracy_rbf= table(predictions_rbf==test$letter)
+accuracy_rbf[2]/(accuracy_rbf[2]+accuracy_rbf[1])
+#### 0.935 
+#### Much better!
+#### Let's try another function. 
+classifier_poly <- ksvm(letter ~ ., data = train,kernel = "polydot")
+predictions_poly <- predict(classifier_rbf, test)
+table(predictions_poly, test$letter)
+accuracy_poly= table(predictions_poly==test$letter)
+accuracy_poly[2]/(accuracy_poly[2]+accuracy_poly[1])
+#### 0.935

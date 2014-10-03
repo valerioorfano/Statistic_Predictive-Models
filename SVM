@@ -1,4 +1,5 @@
 ## OCR with Support Vector Machine
+#### Data contains features after scanning hand-written letters into a computer system.
 install.packages("downloader")
 require(downloader)
 download(url="https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/letterdata.csv",destfile="letterdata.csv")

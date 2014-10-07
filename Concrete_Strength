@@ -1,0 +1,24 @@
+## Compressive strength of concrete donated to the UCI Machine Learning Data Repository (http://archive.ics.uci.edu/ml)
+
+concrete <- read.csv("Concrete_Data.csv", header=T)
+str(concrete)
+#### Neural networks requires input data are standardized.
+concrete_std<- data.frame(lapply(concrete,scale))
+index <- sample(1:nrow(concrete_std), size=0.2*nrow(concrete_std))
+train <- concrete_std[-index,]
+test  <- concrete_std[index,]
+library("neuralnet") 
+formula <- paste("Strength ~ ",paste(setdiff(names(concrete_std),"Strength"),collapse="+"))
+model <- neuralnet(formula, data = train)
+plot(model)
+#### From the plot we can see there 8 input nodes in th einput layer (as many as th einout features), 1 node in the hidden layer, and 1 node in the output layer.
+predict <- compute(model,test[,-9])
+#### Correlation between prediction and actual values determines the linear relationship between fit and real values.
+cor(predict$net.result,test[,9])
+#### 0.7816131505  Let's try to do a bit better
+model2 <- neuralnet(formula, data = train, hidden = 4)
+plot(model2)
+predict2 <- compute(model2,test[,-9])
+#### Correlation between prediction and actual values determines the linear relationship between fit and real values.
+cor(predict2$net.result,test[,9])
+#### 0.93428115   Definitely better!

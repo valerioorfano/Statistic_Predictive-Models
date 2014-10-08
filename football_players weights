@@ -1,4 +1,6 @@
 ## ANOVA test to check the variance weights (pounds) of a random sample of professional football players
+#### Null Hypotesis => μDallas=μGreen=μDenver=μMiami=μS.Francisco
+#### Alternative Hypotesis => At least 2 means are different.
 #### X1 = weights of players for the Dallas Cowboys	
 #### X2 = weights of players for the Green Bay Packers 
 #### X3 = weights of players for the Denver Broncos
@@ -21,3 +23,4 @@ model <- aov(weight ~ team, data=newweights)
 #### For the anova outcome we notice how F values is smaller then F_critical with a p-value larger then 0.05 with a confidence level alfa=5%.
 #### Therefore we can conclude there is not a significant difference among the weight mean of the football players.
 #### We accept the null hypotesis =>  μDallas=μGreen=μDenver=μMiami=μS.Francisco
+

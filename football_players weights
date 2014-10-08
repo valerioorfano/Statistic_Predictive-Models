@@ -1,0 +1,23 @@
+## ANOVA test to check the variance weights (pounds) of a random sample of professional football players
+#### X1 = weights of players for the Dallas Cowboys	
+#### X2 = weights of players for the Green Bay Packers 
+#### X3 = weights of players for the Denver Broncos
+#### X4 = weights of players for the Miami Dolphins
+#### X5 = weights of players for the San Francisco Forty Niners
+#### Data are available from the link: "http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/owan/frames/frame.html"
+weights=read.csv("owan05.csv",header=T)
+str(weights)
+#### Exploratory data analysys: Let's the change the dataframe into a 2 columns dataframe
+weight <- as.vector(sapply(weights,rbind))
+team <- c(rep("Dallas",nrow(weights)),rep("Green",nrow(weights)),rep("Denver",nrow(weights)),rep("Miami",nrow(weights)),rep("S.Francisco",nrow(weights)))
+newweights <- data.frame(cbind(weight,team))
+newweights$weight <- as.numeric(newweights$weight)
+model <- aov(weight ~ team, data=newweights)
+#### summary(model)
+####            Df    Sum Sq  Mean Sq F value  Pr(>F)
+#### team         4   883.176 220.7941 1.76289 0.14452
+#### Residuals   80 10019.647 125.2456 
+
+#### For the anova outcome we notice how F values is smaller then F_critical with a p-value larger then 0.05 with a confidence level alfa=5%.
+#### Therefore we can conclude there is not a significant difference among the weight mean of the football players.
+#### We accept the null hypotesis =>  μDallas=μGreen=μDenver=μMiami=μS.Francisco

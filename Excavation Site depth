@@ -1,0 +1,29 @@
+## ANOVA test to check the variance of Four different excavation sites at an archeological area in New Mexico
+#### Null Hypotesis => μpizza=μbaker=μshoe=μgift=μpet
+#### Alternative hypotesys => at least mean are significally different  
+#### X1 = depths at Site I
+#### X2 = depths at Site II
+#### X3 = depths at Site III
+#### X4 = depths at Site IV
+#### Data are available from the link: "http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/owan/frames/frame.html"
+depths=read.csv("owan01.csv",header=T)
+str(depths)
+#### Exploratory data analysys: Let's change the dataframe into a 2 columns dataframe
+depth <- as.vector(sapply(depths,rbind))
+site <- c(rep("SiteI",nrow(depths)),rep("SiteII",nrow(depths)),rep("SiteIII",nrow(depths)),rep("SiteIV",nrow(depths)))
+newdepths <- data.frame(cbind(depth,site))
+newdepths$depth <- as.numeric(newdepths$depth)
+newdepths <- newdepths[!is.na(newdepths$depth) ,]
+model <- aov(depth ~ site, data=newdepths)
+summary(model)
+####             Df    Sum Sq   Mean Sq F value   Pr(>F)  
+#### site         3  557.3502 185.78341 4.14962 0.011572 *
+#### Residuals   42 1880.3889  44.77116 
+#### For the anova outcome we notice how F values is greater then F_critical with a p-value smaller then 0.05 with a confidence level alfa=5%.
+#### Therefore we can conclude there is not a significant difference among the weight mean of the football players.
+#### We reject the null hypotesis =>  μSiteX!=μY
+#### Which μSite are different? TukeyHSD
+library(graphics)
+post_hoc <- tukeyHSD(model)
+plot(post_hoc)
+#### From the plot it is clear that x¯SiteIV-x¯SiteIII fall in the rejection area of the normal distribution μSiteVI-μSiteIII with a confidence level alfa=5%. That because the difference doesn't contain value "0".

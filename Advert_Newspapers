@@ -17,7 +17,7 @@ plot.design(news_formatted)
 tapply(news_formatted$advertisement,type,mean)
 tapply(news_formatted$advertisement,day,mean)
 interaction.plot(news_formatted$day,news_formatted$type,news_formatted$advertisement,col=c("red","blue","yellow"))
-#### From the graph it is easy to see there is a cross between the lines, that means only variance of th einteraction term should be considered into account regarding to the variance of the dependent variable.
+#### From the graph it is easy to see there is a cross between the lines, that means only variance of the interaction term should be considered into account regarding the variance of the dependent variable.
 model <- aov(advertisement ~ type + day + type:day, data=news_formatted)
 #### Since there is a significant effect of the interaction term whose F value is larger then F-critical, we then must consider exclusively the interaction term and not considering individual term.
 summary(model)

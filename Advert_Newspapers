@@ -1,0 +1,39 @@
+## 2-way to check the variance in Advertising in Local Newspapers
+#### Data available at the link: "http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/twan/frames/frame.html"
+#### Response: Number of inquiries resulting from advertisement
+#### Factor 1:	day of week (Monday through Friday)
+#### Factor 2:	section of newspaper (news, business, sports)
+news <- read.csv("twan04.csv",h=T)
+#### Looking at the data, it s a 2-way anova with repeated measures. Therefore let's calculate the mean in each cell
+#### Let's define a proper order for the factor variable Day. By default the level order would be scrambled.
+news$Day <- factor(news$Day, levels = c("Monday","Tuesday","Wednesday","Thrusday","Friday"))
+#news_papers <- aggregate(news[,c(2:4)],by=list(news[,1]),mean)
+#### Format the data properly
+advertisement <- as.vector(sapply(news[,2:4],rbind))
+type <- c(rep("News",nrow(news)),rep("Business",nrow(news)),rep("Sport",nrow(news)))
+day <- rep(c("Monday","Tuesday","Wednesday","Thrusday","Friday"),each = 4,times = 3)
+news_formatted <- data.frame(cbind(advertisement,type,day))
+news_formatted$advertisement <- as.numeric(as.character(news_formatted$advertisement))
+#### Now we can apply the anova function
+par(mfrow=c(2,1))
+#boxplot(news_formatted$advertisement ~ news_formatted$day * news_formatted$type)
+plot.design(news_formatted)
+adverttype <- tapply(news_formatted$advertisement,type,mean)
+advertday <- tapply(news_formatted$advertisement,day,mean)
+interaction.plot(news_formatted$day,news_formatted$type,news_formatted$advertisement,col=c("red","blue","yellow"))
+model <- aov(advertisement ~ type + day + type:day, data=news_formatted)
+#### Since there is a significant effect of the interaction term whose F value is larger then F-critical, we then must consider exclusively the interaction term and not considering individual term.
+summary(model)
+####             Df    Sum Sq  Mean Sq  F value           Pr(>F)    
+#### type         2  53.73333 26.86667 15.30380 0.00000850275239 ***
+#### day          4 146.83333 36.70833 20.90981 0.00000000085175 ***
+#### type:day     8 135.76667 16.97083  9.66693 0.00000011246869 ***
+#### Residuals   45  79.00000  1.75556
+model <- aov(advertisement ~ type:day, data=news_formatted)
+summary(model2)
+####             Df   Sum Sq   Mean Sq  F value             Pr(>F)    residuals are pretty well distributed around zero.
+#### type:day    14 336.3333 24.023810 13.68445 0.0000000000076966 ***
+#### Residuals   45  79.0000  1.755556 
+plot(residuals(model2))
+boxplot(residuals(model2)~type*day)
+#### Residuals are distributed around zero with constant variance.

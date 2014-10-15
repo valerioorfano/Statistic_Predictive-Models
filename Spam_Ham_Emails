@@ -36,11 +36,13 @@ inspect(corpus_final[1:3,])
 #### Convert everything in a dataframe to be fed into naive Bayes algorithm
 #### df <- data.frame(inspect(corpus_final),stringsAsFactors=F)
 #### Let's create Train and Test data 
+#### Any term frequency >0 means term = 1 (presence).  Any term frequency = 0 means term = 0 (absence)
 count_yesno <- function(x){ifelse(x>0,1,0); x <- factor(x, levels=c(0,1),labels=c("no","yes"))}
 final_sms <- apply(corpus_final,2,count_yesno)
 index <- sample(1:dim(final_sms)[1],size=0.2*dim(final_sms)[1])
 test_sms <- final_sms[index,]
 train_sms <- final_sms[-index,]
+#### Applyinh Naive Bayes algorithm
 library(e1071)
 model <- naiveBayes(train_sms,df$class[-index])
 predict <- predict(model,test_sms)
@@ -52,7 +54,6 @@ confusionMatrix(predict,df$class[index])
 #### The number of spam messages that were wrongly predicted as ham is 21 (false negative).
 #### False positive and then sensitivity is much more important because it is more dangerous classifying an important ham mail as spam.
 #### False negative and then specificity is less important because that would cause reading few spam emails. Not a big effort :)
-
 #### Improvement using Laplace corrector
 modelLaplace <- naiveBayes(train_sms,df$class[-index],laplace=1)
 predictLaplace <- predict(modelLaplace,test_sms)
@@ -62,4 +63,3 @@ confusionMatrix(predictLaplace,df$class[index])
 #### Excellent result: Accuracy : 0.9802513,Sensitivity : 0.9979487,Specificity : 0.8561151
 #### The number of ham messages that were wrongly predicted as spam is reduced from 5 to 2. 
 #### The number of spam messages that were wrongly predicted as ham is reduced from 21 to 20.
-

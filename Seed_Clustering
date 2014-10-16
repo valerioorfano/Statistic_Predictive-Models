@@ -1,0 +1,27 @@
+## Clustering for data seed.
+#### Data available at: http://archive.ics.uci.edu/ml/machine-learning-databases/00236/seeds_dataset.txt
+#### To construct the data, seven geometric parameters of wheat kernels were measured: 
+#### 1. area A, 
+#### 2. perimeter P, 
+#### 3. compactness C = 4*pi*A/P^2, 
+#### 4. length of kernel, 
+#### 5. width of kernel, 
+#### 6. asymmetry coefficient 
+#### 7. length of kernel groove. 
+#### All of these parameters were real-valued continuous.
+download.file(url="http://archive.ics.uci.edu/ml/machine-learning-databases/00236/seeds_dataset.txt", destfile="seeds.csv")
+data <- read.table('seeds.csv',header=c("A","P","C","LK","WK","AC","LKG","CAT"))
+#### We remove the last column Category, as this is exactly what we want to achieve.
+seed <- data[,-8]
+#### Let's standardize the values to avoid one feature to be dominant compated to others.
+seed_n <- scale(seed)
+#### We first use K-Means algorith as we know there are 3 categories with 70 seed each.
+clusters <- kmeans(seed_n, 3)
+clusters$size
+#### [1] 67 71 72
+#### K-Means works pretty well as we know apriori that there are 3 categories with 70 seed each.
+clusters$centers
+#### Cluster 1 has all the features measure above the mean apart from length of kernel groove.
+#### Cluster 2 is pretty close to the mean for each fature. 
+#### Cluster 3 has all the features measure belowe the mean apart from length of kernel groove and asymmetry coeffiecints.
+#### We can conclude that K-Means algorithm was able to split the seeds in the proper categories and that element for each category are quite homogeneous while element different categories are quite different from each other.

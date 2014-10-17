@@ -1,0 +1,62 @@
+## Clustering for data seed.
+#### Data available at: http://archive.ics.uci.edu/ml/machine-learning-databases/00236/seeds_dataset.txt
+#### To construct the data, seven geometric parameters of wheat kernels were measured: 
+#### 1. area A, 
+#### 2. perimeter P, 
+#### 3. compactness C = 4*pi*A/P^2, 
+#### 4. length of kernel, 
+#### 5. width of kernel, 
+#### 6. asymmetry coefficient 
+#### 7. length of kernel groove. 
+#### All of these parameters were real-valued continuous.
+download.file(url="http://archive.ics.uci.edu/ml/machine-learning-databases/00236/seeds_dataset.txt", destfile="seeds.csv")
+data <- read.table('seeds.csv',header=F,col.names=c("A","P","C","LK","WK","AC","LKG","CAT"))
+#### We remove the last column Category, as this is exactly what we want to achieve.
+seed <- data[,-8]
+seed_n <- scale(seed)
+#### The first step is calculating a distance matrix. For a data set with n observations, the distance matrix will have n rows and n columns; the (i,j)th element of the distance matrix will be the difference between observation i and observation j. 
+seed.clust <- hclust(seed.dist)
+plot(seed.clust, labels= data$CAT)
+#### Looking at the dendogram for the seeds data, there are clearly two very distinct groups; the right hand group seems to consist of two more distinct cluster, while most of the observations in the left hand group are clustering together at about the same height For this data set, it looks like either two or three groups might be an interesting place to start investigating. This is not to imply that looking at solutions with more clusters would be meaningless, but the data seems to suggest that two or three clusters might be a good start
+#### Let's start with 3 clusters.
+groups.3 = cutree(seed.clust,3)
+table(groups.3)
+#### groups.3
+####  1  2  3 
+#### 52 68 90 
+#### If we want to see which seed belong to which cluster.
+table(data[groups.3 ==1,8])
+#### 1   2 
+#### 48  4
+4 records have been mislabed group1 while being of group2
+table(data[groups.3 ==2,8])
+#### 1  2 
+#### 2 66
+#### 2 records have been mislabed group2 while being of group1
+table(data[groups.3 ==3,8])
+#### 1  3 
+#### 20 70
+#### 20 records have been mislabed group3 while being of group1
+In a more compacted way
+sapply(unique(groups.3),function(g)table(data[groups.3 ==g,8]))
+####     [,1] [,2] [,3]
+#### 1   48    2   20
+#### 2    4   66   70
+#### This other is definitely better
+table(groups.3,data$CAT)
+#### 26 out 210 were mislbeled. About 12%. It is quite a result.
+#### Let's try with 4 groups
+groups.4 = cutree(seed.clust,4)
+sapply(unique(groups.4),function(g)sum(ifelse(groups.4 == g,1,0)))
+#### [1] 52 68 14 76
+#### group3 is a pretty small group. Clustering by 3 is th ebest option
+#### Comparison with the mean
+a3 = aggregate(seed_n,list(groups.3),mean)
+data.frame(Cluster=a3[,1],Freq=as.vector(table(groups.3)),a3[,-1])
+####   Cluster Freq           A            P          C         LK         WK          AC        LKG
+#### 1       1   52  0.01545733 -0.002398137  0.4911367 -0.0887064  0.1601511 -0.81490533 -0.4377948
+#### 2       2   68  1.21893721  1.233132514  0.4950193  1.2277398  1.1138930 -0.03217531  1.2820550
+#### 3       3   90 -0.92990568 -0.930314532 -0.6577825 -0.8763730 -0.9341398  0.49514443 -0.7157157
+#### Group1 contains seed with features around the mean
+#### Grou2 contains seed features above the mean
+#### Group3 contains seed features belowe the mean
